@@ -19,7 +19,7 @@ import android.widget.Toast;
 public class MainActivity extends Activity {
 	TextView txtContador;
 	Button btnBanear;
-	MediaPlayer sndBoton;
+	MediaPlayer sndMartillazo, sndSangine;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -28,34 +28,35 @@ public class MainActivity extends Activity {
 
 		txtContador = (TextView) findViewById(R.id.texto_contador);
 		btnBanear = (Button) findViewById(R.id.btn_banear);
-		sndBoton = MediaPlayer.create(this, R.raw.punch);
+		sndMartillazo = MediaPlayer.create(this, R.raw.punch);
+		sndSangine = MediaPlayer.create(this, R.raw.sangine2);
 
 		btnBanear.setOnClickListener(new View.OnClickListener() {
 
 			@Override
 			public void onClick(View v) {
-				sndBoton.start();
-				postBans(null);
+				sndMartillazo.start();
+				sndSangine.start();
+				postBans();
 			}
 		});
 
-		//getBans();
+		// Inicializacion del contador:
+		txtContador.setText(getBans());
 	}
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
+		// getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
 
-	public void getBans() {
-		// new BansActivity(this).execute("sangine");
+	public String getBans() {
 		String contador = "";
 		try {
-			// Cambiar la direccion del servidor
 			URL url = new URL(
-					"http://192.168.1.5/sanginebapp/get_bans.php?user=%27sangine%27");
+					"http://entrepantallas.hol.es/sanginebapp/get_bans.php");
 			HttpURLConnection conexion = (HttpURLConnection) url
 					.openConnection();
 			conexion.setRequestProperty("User-Agent",
@@ -65,13 +66,12 @@ public class MainActivity extends Activity {
 				BufferedReader reader = new BufferedReader(
 						new InputStreamReader(conexion.getInputStream()));
 				String linea = reader.readLine();
+
 				while (linea != null) {
 					contador += linea;
 					linea = reader.readLine();
 				}
 				reader.close();
-
-				txtContador.setText(contador);
 			} else {
 				Toast.makeText(this, "ERROR:" + conexion.getResponseMessage(),
 						Toast.LENGTH_SHORT).show();
@@ -81,29 +81,38 @@ public class MainActivity extends Activity {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		return contador;
 	}
 
-	public void postBans(View view) {
-		try {
-			URL url = new URL(
-					"http://192.168.1.5/sanginebapp/update_bans.php?user=sangine");
-			HttpURLConnection conexion = (HttpURLConnection) url
-					.openConnection();
-			conexion.setRequestProperty("User-Agent",
-					"Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)");
+	public void postBans() {
+		if (!getBans().equals("")) {
+			try {
+				URL url = new URL(
+						"http://entrepantallas.hol.es/sanginebapp/update_bans.php");
+				HttpURLConnection conexion = (HttpURLConnection) url
+						.openConnection();
+				conexion.setRequestProperty("User-Agent",
+						"Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)");
 
-			if (conexion.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				Toast.makeText(this, "Un ban menos para la cuenta",
-						Toast.LENGTH_SHORT).show();
-			} else {
-				Toast.makeText(this, "ERROR:" + conexion.getResponseMessage(),
-						Toast.LENGTH_SHORT).show();
+				if (conexion.getResponseCode() == HttpURLConnection.HTTP_OK) {
+					Toast.makeText(this, "¡ZAS! Un ban menos para la cuenta",
+							Toast.LENGTH_SHORT).show();
+
+					txtContador.setText(getBans());
+				} else {
+					Toast.makeText(this,
+							"ERROR: " + conexion.getResponseMessage(),
+							Toast.LENGTH_SHORT).show();
+				}
+			} catch (MalformedURLException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
+		} else {
+			Toast.makeText(this,
+					"WTF, ¡a Sangine no le quedan banes pendientes!",
+					Toast.LENGTH_SHORT).show();
 		}
 	}
-
 }
