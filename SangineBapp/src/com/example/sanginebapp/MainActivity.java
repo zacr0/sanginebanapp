@@ -37,7 +37,6 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				sndMartillazo.start();
 				sndSangine.start();
-				// postBans();
 				postBansThread hiloActualizar = new postBansThread();
 				hiloActualizar.start();
 			}
@@ -91,7 +90,6 @@ public class MainActivity extends Activity {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-			// return contador;
 		}
 	}
 
@@ -108,20 +106,27 @@ public class MainActivity extends Activity {
 							"Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)");
 
 					if (conexion.getResponseCode() == HttpURLConnection.HTTP_OK) {
-						Toast.makeText(
-								MainActivity.this.getApplicationContext(),
-								"¡ZAS! Un ban menos para la cuenta",
-								Toast.LENGTH_SHORT).show();
-
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								Toast.makeText(MainActivity.this,
+										"¡ZAS! Un ban menos para la cuenta",
+										Toast.LENGTH_SHORT).show();
+							}
+						});
 						// Actualizacion del contador:
 						getBansThread hiloConexion = new getBansThread();
 						hiloConexion.start();
 
 					} else {
-						Toast.makeText(
-								MainActivity.this.getApplicationContext(),
-								"ERROR: " + conexion.getResponseMessage(),
-								Toast.LENGTH_SHORT).show();
+						runOnUiThread(new Runnable() {
+							@Override
+							public void run() {
+								Toast.makeText(MainActivity.this,
+										"ERROR al conectar", Toast.LENGTH_SHORT)
+										.show();
+							}
+						});
 					}
 				} catch (MalformedURLException e) {
 					e.printStackTrace();
@@ -129,9 +134,15 @@ public class MainActivity extends Activity {
 					e.printStackTrace();
 				}
 			} else {
-				Toast.makeText(MainActivity.this.getApplicationContext(),
-						"WTF, ¡a Sangine no le quedan banes pendientes!",
-						Toast.LENGTH_SHORT).show();
+				runOnUiThread(new Runnable() {
+					@Override
+					public void run() {
+						Toast.makeText(
+								MainActivity.this,
+								"WTF, ¡a Sangine no le quedan banes pendientes!",
+								Toast.LENGTH_SHORT).show();
+					}
+				});
 			}
 		}
 	}
