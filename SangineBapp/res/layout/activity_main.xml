@@ -9,6 +9,7 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
+    android:background="#FFF"
     tools:context=".MainActivity" >
 
     <TextView
@@ -27,7 +28,7 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:textColor="#FF0000"
         android:textSize="18pt"
-        android:layout_weight="1" />
+        android:layout_weight="2" />
 
     <Button
         android:id="@+id/btn_banear"
