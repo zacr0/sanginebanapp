@@ -9,6 +9,7 @@ import java.net.URL;
 
 import android.app.Activity;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
@@ -37,12 +38,15 @@ public class MainActivity extends Activity {
 			public void onClick(View v) {
 				sndMartillazo.start();
 				sndSangine.start();
-				postBans();
+				// postBans();
+				postBansThread hiloActualizar = new postBansThread();
+				hiloActualizar.start();
 			}
 		});
 
 		// Inicializacion del contador:
-		txtContador.setText(getBans());
+		getBansThread hiloConexion = new getBansThread();
+		hiloConexion.start();
 	}
 
 	@Override
@@ -52,67 +56,85 @@ public class MainActivity extends Activity {
 		return true;
 	}
 
-	public String getBans() {
-		String contador = "";
-		try {
-			URL url = new URL(
-					"http://entrepantallas.hol.es/sanginebapp/get_bans.php");
-			HttpURLConnection conexion = (HttpURLConnection) url
-					.openConnection();
-			conexion.setRequestProperty("User-Agent",
-					"Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)");
+	class getBansThread extends Thread {
+		private String contador = "";
 
-			if (conexion.getResponseCode() == HttpURLConnection.HTTP_OK) {
-				BufferedReader reader = new BufferedReader(
-						new InputStreamReader(conexion.getInputStream()));
-				String linea = reader.readLine();
-
-				while (linea != null) {
-					contador += linea;
-					linea = reader.readLine();
-				}
-				reader.close();
-			} else {
-				Toast.makeText(this, "ERROR:" + conexion.getResponseMessage(),
-						Toast.LENGTH_SHORT).show();
-			}
-		} catch (MalformedURLException e) {
-			e.printStackTrace();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return contador;
-	}
-
-	public void postBans() {
-		if (!getBans().equals("")) {
+		@Override
+		public void run() {
 			try {
 				URL url = new URL(
-						"http://entrepantallas.hol.es/sanginebapp/update_bans.php");
+						"http://entrepantallas.hol.es/sanginebapp/get_bans.php");
 				HttpURLConnection conexion = (HttpURLConnection) url
 						.openConnection();
 				conexion.setRequestProperty("User-Agent",
 						"Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)");
 
 				if (conexion.getResponseCode() == HttpURLConnection.HTTP_OK) {
-					Toast.makeText(this, "¡ZAS! Un ban menos para la cuenta",
-							Toast.LENGTH_SHORT).show();
+					BufferedReader reader = new BufferedReader(
+							new InputStreamReader(conexion.getInputStream()));
+					String linea = reader.readLine();
 
-					txtContador.setText(getBans());
-				} else {
-					Toast.makeText(this,
-							"ERROR: " + conexion.getResponseMessage(),
-							Toast.LENGTH_SHORT).show();
+					while (linea != null) {
+						contador += linea;
+						linea = reader.readLine();
+					}
+					reader.close();
+
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							txtContador.setText(contador);
+						}
+					});
 				}
-			} catch (MalformedURLException e) {
-				e.printStackTrace();
+			} catch (MalformedURLException urlexception) {
+				urlexception.printStackTrace();
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
-		} else {
-			Toast.makeText(this,
-					"WTF, ¡a Sangine no le quedan banes pendientes!",
-					Toast.LENGTH_SHORT).show();
+			// return contador;
 		}
 	}
+
+	class postBansThread extends Thread {
+		@Override
+		public void run() {
+			if (!txtContador.getText().equals("")) {
+				try {
+					URL url = new URL(
+							"http://entrepantallas.hol.es/sanginebapp/update_bans.php");
+					HttpURLConnection conexion = (HttpURLConnection) url
+							.openConnection();
+					conexion.setRequestProperty("User-Agent",
+							"Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)");
+
+					if (conexion.getResponseCode() == HttpURLConnection.HTTP_OK) {
+						Toast.makeText(
+								MainActivity.this.getApplicationContext(),
+								"¡ZAS! Un ban menos para la cuenta",
+								Toast.LENGTH_SHORT).show();
+
+						// Actualizacion del contador:
+						getBansThread hiloConexion = new getBansThread();
+						hiloConexion.start();
+
+					} else {
+						Toast.makeText(
+								MainActivity.this.getApplicationContext(),
+								"ERROR: " + conexion.getResponseMessage(),
+								Toast.LENGTH_SHORT).show();
+					}
+				} catch (MalformedURLException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			} else {
+				Toast.makeText(MainActivity.this.getApplicationContext(),
+						"WTF, ¡a Sangine no le quedan banes pendientes!",
+						Toast.LENGTH_SHORT).show();
+			}
+		}
+	}
+
 }
