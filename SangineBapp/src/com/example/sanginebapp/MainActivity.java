@@ -9,7 +9,9 @@ import java.net.URL;
 import android.app.Activity;
 import android.media.MediaPlayer;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
@@ -42,15 +44,16 @@ public class MainActivity extends Activity {
 		barTiempo.setThumbOffset(TIEMPO_MINIMO);
 		txtTiempo.setText(barTiempo.getThumbOffset() + " "
 				+ getText(R.string.txt_segundos));
-		
+
 		// Escuchadores de eventos para las vistas:
 		btnBanear.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
 				sndMartillazo.start();
 				sndSangine.start();
-				BanSangineThread hiloActualizar = new BanSangineThread();
-				hiloActualizar.start();
+				BanSangineThread hiloBanear = new BanSangineThread();
+				hiloBanear.start();
+				Log.d("Bangine", "" + tiempo);
 			}
 		});
 
@@ -66,7 +69,7 @@ public class MainActivity extends Activity {
 						} else {
 							tiempo = progreso;
 						}
-						
+
 						txtTiempo.setText(tiempo + " "
 								+ getText(R.string.txt_segundos));
 					}
@@ -92,8 +95,20 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		// Inflate the menu; this adds items to the action bar if it is present.
-		// getMenuInflater().inflate(R.menu.main, menu);
+		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
+	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		switch (item.getItemId()) {
+		case R.id.action_refresh:
+			GetBansThread hiloConexion = new GetBansThread();
+			hiloConexion.start();
+			return true;
+		default:
+			return super.onOptionsItemSelected(item);
+		}
 	}
 
 	class GetBansThread extends Thread {
@@ -155,14 +170,39 @@ public class MainActivity extends Activity {
 							"Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)");
 
 					if (conexion.getResponseCode() == HttpURLConnection.HTTP_OK) {
-						runOnUiThread(new Runnable() {
-							@Override
-							public void run() {
-								Toast.makeText(MainActivity.this,
-										"¡ZAS! Un ban menos para la cuenta",
-										Toast.LENGTH_SHORT).show();
-							}
-						});
+						String mensaje = "";
+						BufferedReader reader = new BufferedReader(
+								new InputStreamReader(conexion.getInputStream()));
+						String linea = reader.readLine();
+
+						while (linea != null) {
+							mensaje += linea;
+							linea = reader.readLine();
+						}
+						reader.close();
+
+						if (!mensaje.contains("Error")) {
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									Toast.makeText(
+											MainActivity.this,
+											"¡ZAS! Un ban menos para la cuenta",
+											Toast.LENGTH_SHORT).show();
+								}
+							});
+						} else {
+							runOnUiThread(new Runnable() {
+								@Override
+								public void run() {
+									Toast.makeText(
+											MainActivity.this,
+											"Sangine no está conectado :(",
+											Toast.LENGTH_SHORT).show();
+								}
+							});
+						}
+
 						// Actualizacion del contador:
 						GetBansThread hiloConexion = new GetBansThread();
 						hiloConexion.start();
@@ -172,7 +212,7 @@ public class MainActivity extends Activity {
 							@Override
 							public void run() {
 								Toast.makeText(MainActivity.this,
-										"ERROR al conectar", Toast.LENGTH_SHORT)
+										"ERROR al conectar", Toast.LENGTH_LONG)
 										.show();
 							}
 						});
