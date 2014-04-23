@@ -6,20 +6,23 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
-
 import android.app.Activity;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.View;
 import android.widget.Button;
+import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
-	TextView txtContador;
-	Button btnBanear;
-	MediaPlayer sndMartillazo, sndSangine;
+	private int segundos = 1;
+	private final int TIEMPO_MAXIMO = 60;
+	private TextView txtContador, txtTiempo;
+	private SeekBar barTiempo;
+	private Button btnBanear;
+	private MediaPlayer sndMartillazo, sndSangine;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -27,23 +30,55 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.activity_main);
 
 		txtContador = (TextView) findViewById(R.id.texto_contador);
+		txtTiempo = (TextView) findViewById(R.id.texto_tiempo);
+		barTiempo = (SeekBar) findViewById(R.id.barra_tiempo);
 		btnBanear = (Button) findViewById(R.id.btn_banear);
 		sndMartillazo = MediaPlayer.create(this, R.raw.punch);
 		sndSangine = MediaPlayer.create(this, R.raw.sangine2);
 
+		// Configuracion slider de tiempo:
+		barTiempo.setMax(TIEMPO_MAXIMO);
+		barTiempo.setThumbOffset(segundos);
+		txtTiempo.setText(barTiempo.getThumbOffset() + " "
+				+ getText(R.string.txt_segundos));
+		
+		// Escuchadores de eventos para las vistas:
 		btnBanear.setOnClickListener(new View.OnClickListener() {
-
 			@Override
 			public void onClick(View v) {
 				sndMartillazo.start();
 				sndSangine.start();
-				postBansThread hiloActualizar = new postBansThread();
+				BanSangineThread hiloActualizar = new BanSangineThread();
 				hiloActualizar.start();
 			}
 		});
 
+		barTiempo
+				.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+
+					@Override
+					public void onProgressChanged(SeekBar arg0, int progreso,
+							boolean arg2) {
+						segundos = progreso;
+						txtTiempo.setText(segundos + " "
+								+ getText(R.string.txt_segundos));
+					}
+
+					@Override
+					public void onStartTrackingTouch(SeekBar arg0) {
+						// TODO Auto-generated method stub
+
+					}
+
+					@Override
+					public void onStopTrackingTouch(SeekBar arg0) {
+						// TODO Auto-generated method stub
+
+					}
+				});
+
 		// Inicializacion del contador:
-		getBansThread hiloConexion = new getBansThread();
+		GetBansThread hiloConexion = new GetBansThread();
 		hiloConexion.start();
 	}
 
@@ -54,14 +89,16 @@ public class MainActivity extends Activity {
 		return true;
 	}
 
-	class getBansThread extends Thread {
+	class GetBansThread extends Thread {
 		private String contador = "";
 
 		@Override
 		public void run() {
 			try {
+				// URL url = new URL(
+				// "http://entrepantallas.hol.es/sanginebapp/get_bans.php");
 				URL url = new URL(
-						"http://entrepantallas.hol.es/sanginebapp/get_bans.php");
+						"http://94.23.205.21/sanginebapp/get_bans.php");
 				HttpURLConnection conexion = (HttpURLConnection) url
 						.openConnection();
 				conexion.setRequestProperty("User-Agent",
@@ -93,13 +130,18 @@ public class MainActivity extends Activity {
 		}
 	}
 
-	class postBansThread extends Thread {
+	class BanSangineThread extends Thread {
 		@Override
 		public void run() {
 			if (!txtContador.getText().equals("")) {
 				try {
+					// URL url = new URL(
+					// "http://entrepantallas.hol.es/sanginebapp/update_bans.php");
+
 					URL url = new URL(
-							"http://entrepantallas.hol.es/sanginebapp/update_bans.php");
+							"http://94.23.205.21/sanginebapp/ban.php?time="
+									+ segundos);
+
 					HttpURLConnection conexion = (HttpURLConnection) url
 							.openConnection();
 					conexion.setRequestProperty("User-Agent",
@@ -115,7 +157,7 @@ public class MainActivity extends Activity {
 							}
 						});
 						// Actualizacion del contador:
-						getBansThread hiloConexion = new getBansThread();
+						GetBansThread hiloConexion = new GetBansThread();
 						hiloConexion.start();
 
 					} else {

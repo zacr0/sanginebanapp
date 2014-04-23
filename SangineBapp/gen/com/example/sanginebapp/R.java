@@ -27,10 +27,12 @@ public final class R {
         public static final int ic_launcher=0x7f020003;
     }
     public static final class id {
-        public static final int action_settings=0x7f090004;
-        public static final int btn_banear=0x7f090003;
+        public static final int action_settings=0x7f090006;
+        public static final int barra_tiempo=0x7f090003;
+        public static final int btn_banear=0x7f090005;
         public static final int layout=0x7f090000;
         public static final int texto_contador=0x7f090002;
+        public static final int texto_tiempo=0x7f090004;
         public static final int titulo_contador=0x7f090001;
     }
     public static final class layout {
@@ -48,6 +50,7 @@ public final class R {
         public static final int app_name=0x7f060000;
         public static final int texto_titulo=0x7f060002;
         public static final int txt_contador=0x7f060003;
+        public static final int txt_segundos=0x7f060004;
     }
     public static final class style {
         /** 
