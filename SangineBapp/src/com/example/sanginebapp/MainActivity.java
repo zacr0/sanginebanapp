@@ -17,7 +17,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
-	private int segundos = 1;
+	private int tiempo = 1;
 	private final int TIEMPO_MAXIMO = 60;
 	private TextView txtContador, txtTiempo;
 	private SeekBar barTiempo;
@@ -38,7 +38,7 @@ public class MainActivity extends Activity {
 
 		// Configuracion slider de tiempo:
 		barTiempo.setMax(TIEMPO_MAXIMO);
-		barTiempo.setThumbOffset(segundos);
+		barTiempo.setThumbOffset(tiempo);
 		txtTiempo.setText(barTiempo.getThumbOffset() + " "
 				+ getText(R.string.txt_segundos));
 		
@@ -59,8 +59,8 @@ public class MainActivity extends Activity {
 					@Override
 					public void onProgressChanged(SeekBar arg0, int progreso,
 							boolean arg2) {
-						segundos = progreso;
-						txtTiempo.setText(segundos + " "
+						tiempo = progreso;
+						txtTiempo.setText(tiempo + " "
 								+ getText(R.string.txt_segundos));
 					}
 
@@ -140,7 +140,7 @@ public class MainActivity extends Activity {
 
 					URL url = new URL(
 							"http://94.23.205.21/sanginebapp/ban.php?time="
-									+ segundos);
+									+ tiempo);
 
 					HttpURLConnection conexion = (HttpURLConnection) url
 							.openConnection();
