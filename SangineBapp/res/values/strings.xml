@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">BANea a Sangine</string>
+    <string name="app_name">BANgine</string>
     <string name="action_settings">Settings</string>
     <string name="texto_titulo">BANES RESTANTES:</string>
     <string name="txt_contador">0</string>

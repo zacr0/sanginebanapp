@@ -17,7 +17,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class MainActivity extends Activity {
-	private int tiempo = 1;
+	private int tiempo;
+	private final int TIEMPO_MINIMO = 1;
 	private final int TIEMPO_MAXIMO = 60;
 	private TextView txtContador, txtTiempo;
 	private SeekBar barTiempo;
@@ -38,7 +39,7 @@ public class MainActivity extends Activity {
 
 		// Configuracion slider de tiempo:
 		barTiempo.setMax(TIEMPO_MAXIMO);
-		barTiempo.setThumbOffset(tiempo);
+		barTiempo.setThumbOffset(TIEMPO_MINIMO);
 		txtTiempo.setText(barTiempo.getThumbOffset() + " "
 				+ getText(R.string.txt_segundos));
 		
@@ -59,7 +60,13 @@ public class MainActivity extends Activity {
 					@Override
 					public void onProgressChanged(SeekBar arg0, int progreso,
 							boolean arg2) {
-						tiempo = progreso;
+						// Se evita que el tiempo sea menor que 1
+						if (progreso < TIEMPO_MINIMO) {
+							tiempo = TIEMPO_MINIMO;
+						} else {
+							tiempo = progreso;
+						}
+						
 						txtTiempo.setText(tiempo + " "
 								+ getText(R.string.txt_segundos));
 					}
