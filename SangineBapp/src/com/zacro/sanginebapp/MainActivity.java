@@ -1,4 +1,4 @@
-package com.example.sanginebapp;
+package com.zacro.sanginebapp;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -6,6 +6,9 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
+
+import com.example.sanginebapp.R;
+
 import android.app.Activity;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -195,8 +198,7 @@ public class MainActivity extends Activity {
 							runOnUiThread(new Runnable() {
 								@Override
 								public void run() {
-									Toast.makeText(
-											MainActivity.this,
+									Toast.makeText(MainActivity.this,
 											"Sangine no está conectado :(",
 											Toast.LENGTH_SHORT).show();
 								}
