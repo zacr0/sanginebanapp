@@ -25,13 +25,15 @@ public final class R {
         public static final int banhammer_pressed=0x7f020001;
         public static final int boton_banear=0x7f020002;
         public static final int ic_action_refresh=0x7f020003;
-        public static final int ic_launcher=0x7f020004;
+        public static final int ic_action_share=0x7f020004;
+        public static final int ic_launcher=0x7f020005;
     }
     public static final class id {
         public static final int action_refresh=0x7f090006;
         public static final int barra_tiempo=0x7f090003;
         public static final int btn_banear=0x7f090005;
         public static final int layout=0x7f090000;
+        public static final int menu_item_share=0x7f090007;
         public static final int texto_contador=0x7f090002;
         public static final int texto_tiempo=0x7f090004;
         public static final int titulo_contador=0x7f090001;
@@ -48,7 +50,9 @@ public final class R {
     }
     public static final class string {
         public static final int action_refresh=0x7f060001;
+        public static final int action_share=0x7f060005;
         public static final int app_name=0x7f060000;
+        public static final int msg_share=0x7f060006;
         public static final int texto_titulo=0x7f060002;
         public static final int txt_contador=0x7f060003;
         public static final int txt_segundos=0x7f060004;

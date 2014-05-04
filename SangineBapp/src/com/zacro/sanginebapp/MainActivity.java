@@ -7,12 +7,10 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
-import com.example.sanginebapp.R;
-
 import android.app.Activity;
+import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,59 +19,60 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.sanginebapp.R;
+
 public class MainActivity extends Activity {
-	private int tiempo;
-	private final int TIEMPO_MINIMO = 1;
-	private final int TIEMPO_MAXIMO = 60;
-	private TextView txtContador, txtTiempo;
-	private SeekBar barTiempo;
-	private Button btnBanear;
-	private MediaPlayer sndMartillazo, sndSangine;
+	private int time = 1;
+	private final int MIN_TIME = 1;
+	private final int MAX_TIME = 60;
+	private TextView txtCounter, txtTime;
+	private SeekBar barTime;
+	private Button btnBan;
+	private MediaPlayer sndHammer, sndSangine;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 
-		txtContador = (TextView) findViewById(R.id.texto_contador);
-		txtTiempo = (TextView) findViewById(R.id.texto_tiempo);
-		barTiempo = (SeekBar) findViewById(R.id.barra_tiempo);
-		btnBanear = (Button) findViewById(R.id.btn_banear);
-		sndMartillazo = MediaPlayer.create(this, R.raw.punch);
+		txtCounter = (TextView) findViewById(R.id.texto_contador);
+		txtTime = (TextView) findViewById(R.id.texto_tiempo);
+		barTime = (SeekBar) findViewById(R.id.barra_tiempo);
+		btnBan = (Button) findViewById(R.id.btn_banear);
+		sndHammer = MediaPlayer.create(this, R.raw.punch);
 		sndSangine = MediaPlayer.create(this, R.raw.sangine2);
 
 		// Configuracion slider de tiempo:
-		barTiempo.setMax(TIEMPO_MAXIMO);
-		barTiempo.setThumbOffset(TIEMPO_MINIMO);
-		txtTiempo.setText(barTiempo.getThumbOffset() + " "
+		barTime.setMax(MAX_TIME);
+		barTime.setThumbOffset(MIN_TIME);
+		txtTime.setText(barTime.getThumbOffset() + " "
 				+ getText(R.string.txt_segundos));
 
 		// Escuchadores de eventos para las vistas:
-		btnBanear.setOnClickListener(new View.OnClickListener() {
+		btnBan.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View v) {
-				sndMartillazo.start();
+				sndHammer.start();
 				sndSangine.start();
 				BanSangineThread hiloBanear = new BanSangineThread();
 				hiloBanear.start();
-				Log.d("Bangine", "" + tiempo);
 			}
 		});
 
-		barTiempo
+		barTime
 				.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
 
 					@Override
 					public void onProgressChanged(SeekBar arg0, int progreso,
 							boolean arg2) {
 						// Se evita que el tiempo sea menor que 1
-						if (progreso < TIEMPO_MINIMO) {
-							tiempo = TIEMPO_MINIMO;
+						if (progreso < MIN_TIME) {
+							time = MIN_TIME;
 						} else {
-							tiempo = progreso;
+							time = progreso;
 						}
 
-						txtTiempo.setText(tiempo + " "
+						txtTime.setText(time + " "
 								+ getText(R.string.txt_segundos));
 					}
 
@@ -109,9 +108,25 @@ public class MainActivity extends Activity {
 			GetBansThread hiloConexion = new GetBansThread();
 			hiloConexion.start();
 			return true;
+		case R.id.menu_item_share:
+			shareButtonAction();
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
+	}
+	
+	/**
+	 * 
+	 */
+	public void shareButtonAction() {
+		Intent sharingIntent = new Intent(android.content.Intent.ACTION_SEND);
+		sharingIntent.setType("text/plain");
+		String shareBody = getString(R.string.msg_share, time);
+		sharingIntent.putExtra(android.content.Intent.EXTRA_SUBJECT, "BANgine");
+		sharingIntent.putExtra(android.content.Intent.EXTRA_TEXT, shareBody);
+		startActivity(Intent.createChooser(sharingIntent,
+				getString(R.string.action_share)));
 	}
 
 	class GetBansThread extends Thread {
@@ -120,8 +135,6 @@ public class MainActivity extends Activity {
 		@Override
 		public void run() {
 			try {
-				// URL url = new URL(
-				// "http://entrepantallas.hol.es/sanginebapp/get_bans.php");
 				URL url = new URL(
 						"http://94.23.205.21/sanginebapp/get_bans.php");
 				HttpURLConnection conexion = (HttpURLConnection) url
@@ -143,7 +156,14 @@ public class MainActivity extends Activity {
 					runOnUiThread(new Runnable() {
 						@Override
 						public void run() {
-							txtContador.setText(contador);
+							txtCounter.setText(contador);
+						}
+					});
+				} else {
+					runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							txtCounter.setText("Sin conexión");
 						}
 					});
 				}
@@ -158,14 +178,11 @@ public class MainActivity extends Activity {
 	class BanSangineThread extends Thread {
 		@Override
 		public void run() {
-			if (!txtContador.getText().equals("")) {
+			if (!txtCounter.getText().equals("")) {
 				try {
-					// URL url = new URL(
-					// "http://entrepantallas.hol.es/sanginebapp/update_bans.php");
-
 					URL url = new URL(
 							"http://94.23.205.21/sanginebapp/ban.php?time="
-									+ tiempo);
+									+ time);
 
 					HttpURLConnection conexion = (HttpURLConnection) url
 							.openConnection();

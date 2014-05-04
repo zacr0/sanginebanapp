@@ -6,5 +6,7 @@
     <string name="texto_titulo">BANS LEFT:</string>
     <string name="txt_contador">0</string>
     <string name="txt_segundos">second(s)</string>
+    <string name="action_share">Share</string>
+    <string name="msg_share">I\'m going to ban Sangine for %1$s second(s) with &lt;a href="https://github.com/zacr0/sanginebanapp"&gt;BANgine&lt;/a&gt;</string>
 
 </resources>
