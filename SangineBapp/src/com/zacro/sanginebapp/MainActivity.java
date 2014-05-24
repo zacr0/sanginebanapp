@@ -181,7 +181,7 @@ public class MainActivity extends Activity {
 			if (!txtCounter.getText().equals("")) {
 				try {
 					URL url = new URL(
-							"http://94.23.205.21/sanginebapp/ban.php?time="
+							"http://94.23.205.21/sanginebapp/banear.php?time="
 									+ time);
 
 					HttpURLConnection conexion = (HttpURLConnection) url
